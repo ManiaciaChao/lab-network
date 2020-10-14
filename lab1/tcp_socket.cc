@@ -9,6 +9,7 @@
 
 #include <array>
 #include <cerrno>
+#include <iostream>
 
 #include "string.h"
 #define MAX_BUF 24
@@ -27,7 +28,7 @@ void print_client_info(sockaddr *client_addr, socklen_t client_addr_len) {
   getnameinfo(client_addr, client_addr_len, host_name.data(), MAX_BUF,
               host_port.data(), MAX_BUF, 0);
 
-  printf("Request Received from %s:%s \n", host_name.data(), host_port.data());
+  printf("> Request from %s:%s \n", host_name.data(), host_port.data());
 }
 
 TCPSocket::TCPSocket() {
@@ -38,8 +39,8 @@ TCPSocket::TCPSocket() {
 }
 
 TCPSocket::~TCPSocket() {
+  std::cout << "gracefully shutdown..." << std::endl;
   this->close();
-  printf("bye!");
 }
 
 auto TCPSocket::bind(const std::string &host_ip, uint16_t port) -> int {
@@ -48,6 +49,12 @@ auto TCPSocket::bind(const std::string &host_ip, uint16_t port) -> int {
                  .sin_addr = {.s_addr = htonl(INADDR_ANY)}};
   auto res = ::bind(this->_fd, reinterpret_cast<sockaddr *>(&this->_addr),
                     sizeof(this->_addr));
+  while (err_handler(res) < 0) {
+    this->_addr.sin_port = htons(++port);
+    res = ::bind(this->_fd, reinterpret_cast<sockaddr *>(&this->_addr),
+                 sizeof(this->_addr));
+  }
+  std::cout << "Server is listening port " << port << std::endl;
   return err_handler(res);
 }
 

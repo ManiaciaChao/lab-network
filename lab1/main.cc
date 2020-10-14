@@ -28,7 +28,7 @@ int main() {
 
   auto port = utils::getenv("PORT", 80);
   auto root = fs::absolute(utils::getenv("ROOT", fs::current_path()));
-  std::cout << "root: " << root << std::endl;
+  // std::cout << "root: " << root << std::endl;
   setsockopt(tcpSocket->get_fd(), SOL_SOCKET, SO_REUSEADDR, (const void *)&opt,
              sizeof(opt));
 
@@ -43,23 +43,28 @@ int main() {
     // printf("%s\n", buffer);
     auto req = Request(buffer);
     if (req.line.method == "GET") {
-      if (!req.line.target.empty()) {
-        fs::path path = root.concat(req.line.target);
-
+      if (not req.line.target.empty()) {
+        auto path = root;
+        path.concat(req.line.target);
+        // std::cout << path << std::endl;
         auto is_directory = fs::is_directory(path);
-        if (is_directory) {
-          close(new_socket);
-          continue;
+        if (is_directory && not fs::exists(path.concat("index.htm"))) {
+          path.concat("l");
         }
-
         auto fd = ::open(path.c_str(), O_RDONLY);
         std::string body;
         Response res = {};
+        std::cout << "< Response headers:" << std::endl;
         res.line.version = "HTTP/1.1";
         if (fd == -1) {
           res.line.status = "404";
           res.line.text = "Not Found";
-          res.body = "<h1>404 Not Found</h1>";
+          res.body =
+              "<div style=\"text-align:center;\">"
+              "<h1>404 Not Found</h1>"
+              "<hr />"
+              "<p>engined by pengine</p>"
+              "</div>";
           res.header("Content-Type", "text/html; charset=UTF-8")
               .header("Content-Length", std::to_string((int)res.body.length()));
           auto r_str = res.to_string();
