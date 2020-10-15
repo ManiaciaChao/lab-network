@@ -1,5 +1,6 @@
 #ifndef DATA_STRUCTURE_H
 #define DATA_STRUCTURE_H
+#include <cstddef>
 
 struct Configuration {
   // 定义各层协议Payload数据的大小（字节为单位）
@@ -7,7 +8,7 @@ struct Configuration {
   // 定时器时间
   static const int TIME_OUT = 20;
   // 滑动窗口大小
-  static constexpr size_t WINDOW_SIZE = 16;
+  static constexpr std::size_t WINDOW_SIZE = 16;
 };
 
 /**
