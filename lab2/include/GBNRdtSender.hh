@@ -1,6 +1,6 @@
 #pragma once
-#include <array>
 #include <cstddef>
+#include <deque>
 
 #include "RdtSender.hh"
 
@@ -8,7 +8,7 @@ class GBNRdtSender : public RdtSender {
  private:
   std::size_t baseSeqNum;
   std::size_t nextSeqNum;
-  std::array<Packet, Configuration::WINDOW_SIZE> cache;
+  std::deque<Packet> cache;
 
  public:
   bool getWaitingState();
