@@ -5,13 +5,15 @@
 # resultname 程序控制台输出结果重定向文件名
 
 appname=$1
-inputname=$2
-outputname=$3
-resultname=$4
+inputname="./input.txt"
+outputname="./output.txt"
+resultname="./result.txt"
 
+pwd
+# exit
 for ((i = 1; i <= 10; i++)); do
   echo Test $appname $i
-  ./$appname >$resultname 2>&1
+  ./bin/$appname >$resultname 2>&1
   cmp $inputname $outputname
   echo Test $i over
 done

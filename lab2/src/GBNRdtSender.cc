@@ -16,7 +16,7 @@ bool GBNRdtSender::send(const Message &message) {
     packet.acknum = -1;
     std::copy_n(message.data, sizeof(message.data), packet.payload);
     packet.checksum = pUtils->calculateCheckSum(packet);
-    
+
     cache.push_back(packet);
 
     if (baseSeqNum == nextSeqNum) {
@@ -42,17 +42,18 @@ void GBNRdtSender::receive(const Packet &ackPkt) {
   // notcorrupt(rcvpkt)
 
   // printf("base: %d, ack:%d\n", baseSeqNum, ackPkt.acknum);
+  printf("sw range changed from: [%d, %d] ", cache.front().seqnum,
+         cache.back().seqnum);
   for (int diff = ackPkt.acknum - baseSeqNum; diff >= 0; diff--) {
-    std::cout << cache.size() << std::endl;
     cache.pop_front();
   }
+  printf("to [%d, %d]\n", cache.front().seqnum,
+         cache.back().seqnum);
 
   baseSeqNum = ackPkt.acknum + 1;
+  pns->stopTimer(SENDER, 0);
 
-  if (baseSeqNum == nextSeqNum) {
-    pns->stopTimer(SENDER, 0);
-  } else {
-    pns->stopTimer(SENDER, 0);
+  if (baseSeqNum != nextSeqNum) {
     pns->startTimer(SENDER, Configuration::TIME_OUT, 0);
   }
 }
