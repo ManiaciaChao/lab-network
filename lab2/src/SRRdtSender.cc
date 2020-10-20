@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "Color.hh"
 #include "DataStructure.hh"
 #include "Global.hh"
 
@@ -21,8 +22,7 @@ bool SRRdtSender::send(const Message &message) {
     cache[packet.seqnum] = packet;
     pns->startTimer(SENDER, Configuration::TIME_OUT, packet.seqnum);
     pns->sendToNetworkLayer(RECEIVER, packet);
-
-    // pUtils->printPacket("Packet Send!", packet);
+    pUtils->printPacket(SENDER_PREFIX "packet sent", packet);
     return true;
   }
 
@@ -30,11 +30,14 @@ bool SRRdtSender::send(const Message &message) {
 }
 
 void SRRdtSender::receive(const Packet &packet) {
+  pUtils->printPacket(SENDER_PREFIX "ack recieved", packet);
   auto ackNum = packet.acknum;
   auto checkSum = pUtils->calculateCheckSum(packet);
   // corrupt(rcvpkt)
   if (checkSum != packet.checksum) {
     // pUtils->printPacket("Wrong checksum", ackPkt);
+    printf(SENDER_PREFIX RED("wrong checksum\n"));
+
     return;
   }
   // pUtils->printPacket("Sender receives an ACK:", packet);
@@ -44,24 +47,23 @@ void SRRdtSender::receive(const Packet &packet) {
   // printf("base: %d, ack:%d\n", base, ackPkt.acknum);
 
   if (ackNum == base) {
-    printf("sw range changed from: [%d, %d] ", base, base + cache.size());
+    printf(SENDER_PREFIX YELLOW("sw range changed from: [%d, %d] "), base,
+           base + cache.size());
     for (std::size_t i = 1; i < cache.size(); i++) {
       if (cache[base + i].acknum != base + i) {
         base += i;
         break;
       }
     }
-    printf("to: [%d, %d]\n", base, base + cache.size());
+    printf(YELLOW("to: [%d, %d]\n"), base, base + cache.size());
   }
 
   pns->stopTimer(SENDER, ackNum);
 }
 
 void SRRdtSender::timeoutHandler(int seqNum) {
-  // seqNum is the base when timer just started, always 0
-  // std::cout << "Timeout!" << std::endl;
   pns->stopTimer(SENDER, seqNum);
   pns->startTimer(SENDER, Configuration::TIME_OUT, seqNum);
   pns->sendToNetworkLayer(RECEIVER, cache[seqNum]);
-  // std::cout << std::endl;
+  pUtils->printPacket(SENDER_PREFIX RED("timeout then resend"), cache[base]);
 };

@@ -27,7 +27,7 @@ void TCPRdtReceiver::receive(const Packet& packet) {
     lastAckPkt.acknum = base;
     lastAckPkt.checksum = pUtils->calculateCheckSum(lastAckPkt);
     pns->sendToNetworkLayer(SENDER, lastAckPkt);
-    pUtils->printPacket(RECIEVER_PREFIX "ACK resent", lastAckPkt);
+    pUtils->printPacket(RECIEVER_PREFIX "ack resent", lastAckPkt);
     return;
   }
 

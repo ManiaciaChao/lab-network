@@ -6,8 +6,8 @@
 
 class GBNRdtSender : public RdtSender {
  private:
-  std::size_t baseSeqNum;
-  std::size_t nextSeqNum;
+  std::size_t base;
+  std::size_t next;
   std::deque<Packet> cache;
 
  public:
@@ -17,6 +17,6 @@ class GBNRdtSender : public RdtSender {
   void timeoutHandler(int seqNum);
 
  public:
-  GBNRdtSender() : baseSeqNum(0), nextSeqNum(0), cache() {}
+  GBNRdtSender() : base(0), next(0), cache() {}
   virtual ~GBNRdtSender() override {}
 };

@@ -1,12 +1,15 @@
 #include "SRRdtReceiver.hh"
 
+#include "Color.hh"
 #include "Global.hh"
 #include "algorithm"
+
 void SRRdtReceiver::receive(const Packet& packet) {
+  pUtils->printPacket(RECIEVER_PREFIX "packet recieved", packet);
   auto checkSum = pUtils->calculateCheckSum(packet);
   auto seqNum = packet.seqnum;
   if (packet.checksum != checkSum) {
-    // printf("R: wrong checksum\n");
+    printf(RECIEVER_PREFIX RED("wrong checksum\n"));
     return;
   }
   if (seqNum >= static_cast<int>(base - cache.size()) &&
@@ -16,6 +19,8 @@ void SRRdtReceiver::receive(const Packet& packet) {
     lastAckPkt.checksum = pUtils->calculateCheckSum(lastAckPkt);
     // pUtils->printPacket("Receiver sends an ACK", lastAckPkt);
     pns->sendToNetworkLayer(SENDER, lastAckPkt);
+    pUtils->printPacket(RECIEVER_PREFIX "ack resent", lastAckPkt);
+
     if (seqNum < base) {
       return;
     }
