@@ -5,18 +5,18 @@
 #include "algorithm"
 
 void GBNRdtReceiver::receive(const Packet& packet) {
-  pUtils->printPacket(RECIEVER_PREFIX "packet recieved", packet);
+  pUtils->printPacket(RECEIVER_PREFIX "packet recieved", packet);
   auto checkSum = pUtils->calculateCheckSum(packet);
   if (packet.checksum != checkSum) {
-    printf(RECIEVER_PREFIX RED("wrong checksum\n"));
+    printf(RECEIVER_PREFIX RED("wrong checksum\n"));
     pns->sendToNetworkLayer(SENDER, lastAckPkt);
-    pUtils->printPacket(RECIEVER_PREFIX "ack resent", lastAckPkt);
+    pUtils->printPacket(RECEIVER_PREFIX "ack resent", lastAckPkt);
     return;
   }
   if (packet.seqnum != expectSeqNum) {
-    printf(RECIEVER_PREFIX "unexpected or out-of-order packet incoming\n");
+    printf(RECEIVER_PREFIX "unexpected or out-of-order packet incoming\n");
     pns->sendToNetworkLayer(SENDER, lastAckPkt);
-    pUtils->printPacket(RECIEVER_PREFIX "ack resent", lastAckPkt);
+    pUtils->printPacket(RECEIVER_PREFIX "ack resent", lastAckPkt);
     return;
   }
   Message msg;
@@ -28,5 +28,5 @@ void GBNRdtReceiver::receive(const Packet& packet) {
   lastAckPkt.checksum = pUtils->calculateCheckSum(lastAckPkt);
 
   pns->sendToNetworkLayer(SENDER, lastAckPkt);
-  pUtils->printPacket(RECIEVER_PREFIX "ack resent", lastAckPkt);
+  pUtils->printPacket(RECEIVER_PREFIX "ack resent", lastAckPkt);
 }

@@ -7,27 +7,27 @@
 using namespace Color;
 
 void TCPRdtReceiver::receive(const Packet& packet) {
-  pUtils->printPacket(RECIEVER_PREFIX "packet recieved", packet);
+  pUtils->printPacket(RECEIVER_PREFIX "packet recieved", packet);
 
   auto checkSum = pUtils->calculateCheckSum(packet);
   auto seqNum = packet.seqnum;
 
   if (packet.checksum != checkSum) {
-    printf(RECIEVER_PREFIX RED("wrong checksum\n"));
+    printf(RECEIVER_PREFIX RED("wrong checksum\n"));
     lastAckPkt.acknum = base;
     lastAckPkt.checksum = pUtils->calculateCheckSum(lastAckPkt);
     pns->sendToNetworkLayer(SENDER, lastAckPkt);
-    pUtils->printPacket(RECIEVER_PREFIX "ack resent", lastAckPkt);
+    pUtils->printPacket(RECEIVER_PREFIX "ack resent", lastAckPkt);
     return;
   }
   cache[packet.seqnum] = packet;
 
   if (packet.seqnum != base) {
-    printf(RECIEVER_PREFIX "unexpected or out-of-order packet incoming\n");
+    printf(RECEIVER_PREFIX "unexpected or out-of-order packet incoming\n");
     lastAckPkt.acknum = base;
     lastAckPkt.checksum = pUtils->calculateCheckSum(lastAckPkt);
     pns->sendToNetworkLayer(SENDER, lastAckPkt);
-    pUtils->printPacket(RECIEVER_PREFIX "ack resent", lastAckPkt);
+    pUtils->printPacket(RECEIVER_PREFIX "ack resent", lastAckPkt);
     return;
   }
 
@@ -40,7 +40,7 @@ void TCPRdtReceiver::receive(const Packet& packet) {
       lastAckPkt.acknum = base;
       lastAckPkt.checksum = pUtils->calculateCheckSum(lastAckPkt);
       pns->sendToNetworkLayer(SENDER, lastAckPkt);
-      printf(RECIEVER_PREFIX YELLOW(
+      printf(RECEIVER_PREFIX YELLOW(
                  "sw range changed from: [%d, %d] to [%d, %d]\n"),
              base, base + cache.size(), base + i, base + i + cache.size());
       base += i;

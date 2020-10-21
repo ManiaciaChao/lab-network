@@ -8,7 +8,7 @@
 #define YELLOW(str) "\x1b[33m" str "\x1b[0m"
 #define BLUE(str) "\x1b[34m" str "\x1b[0m"
 #define SENDER_PREFIX BLUE("sender: ")
-#define RECIEVER_PREFIX GREEN("reciever: ")
+#define RECEIVER_PREFIX GREEN("receiver: ")
 
 namespace Color {
 enum Enum { Normal, Red, Green, Yellow, Blue, Magenta, Cyan, White };
